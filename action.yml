@@ -1,0 +1,41 @@
+name: 'Coolify'
+description: 'Deploy to coolify'
+
+inputs:
+  token:
+    description: 'Github token'
+    required: true
+  imageName:
+    description: 'Docker image name'
+    required: true
+  coolifyWebhook:
+    description: 'Coolify webhook URL'
+    required: true
+  coolifySecret:
+    description: 'Coolify auth token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.token  }}
+    - id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/vuetifyjs/${{ inputs.imageName }}
+    - uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    - name: Deploy to Coolify
+      run: |
+        curl --request GET '${{ inputs.coolifyWebhook }}' --header 'Authorization: Bearer ${{ inputs.coolifySecret }}'
+      shell: bash
