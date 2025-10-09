@@ -8,6 +8,10 @@ inputs:
   imageName:
     description: 'Docker image name'
     required: true
+  dockerfilePath:
+    description: 'Path to Dockerfile'
+    required: false
+    default: 'Dockerfile'
   coolifyWebhook:
     description: 'Coolify webhook URL'
     required: true
@@ -30,7 +34,7 @@ runs:
     - uses: docker/build-push-action@v6
       with:
         context: .
-        file: Dockerfile
+        file: ${{ inputs.dockerfilePath }}
         platforms: linux/amd64
         push: true
         tags: ${{ steps.meta.outputs.tags }}
