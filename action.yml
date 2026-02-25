@@ -41,5 +41,11 @@ runs:
         labels: ${{ steps.meta.outputs.labels }}
     - name: Deploy to Coolify
       run: |
-        curl --request GET '${{ inputs.coolifyWebhook }}' --header 'Authorization: Bearer ${{ inputs.coolifySecret }}'
+        RESPONSE=$(curl \
+          --request GET '${{ inputs.coolifyWebhook }}' \
+          --header 'Authorization: Bearer ${{ inputs.coolifySecret }}' \
+        )
+        echo "$RESPONSE" \
+          | jq -e '.deployments[0].message | select(contains("deployment queued"))' \
+          || { echo "$RESPONSE"; exit 1; }
       shell: bash
