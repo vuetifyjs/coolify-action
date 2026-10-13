@@ -42,7 +42,7 @@ runs:
     - name: Deploy to Coolify
       run: |
         RESPONSE=$(curl \
-          --request GET '${{ inputs.coolifyWebhook }}' \
+          --request POST '${{ inputs.coolifyWebhook }}' \
           --header 'Authorization: Bearer ${{ inputs.coolifySecret }}' \
         )
         echo "$RESPONSE" \
